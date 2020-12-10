@@ -5,14 +5,16 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 import requests
+import youtube_dl
 
 from exceptions import ResponseException
 
 class YoutubeClient:
 
     def  __init__(self):
-        self.youtube_client = self.get_client()
-        self.all_song_info = {}
+        self.get_client()
+        # self.all_song_info = {}
+        self.liked_videos_lst = [[],[]] # columns: 'artists', 'tracks'
 
     # Log in to YouTube
     def get_client(self):
@@ -32,13 +34,28 @@ class YoutubeClient:
         credentials = flow.run_console()
 
         # from the Youtube DATA API
-        youtube_client = googleapiclient.discovery.build(
+        self.api_client = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials)
 
-        return youtube_client
-
     def get_liked_videos(self):
-        pass
+        """Grab Our Liked Videos & Create A Dictionary Of Important Song Information"""
+        request = self.api_client.videos().list(
+            part="snippet,contentDetails,statistics",
+            myRating="like"
+        )
+        response = request.execute()
 
-    def print_properties(self):
-        print(self.youtube_client)
+        # collect each video and get important information
+        for item in response["items"]:
+            # video_title = item["snippet"]["title"]
+            youtube_url = "https://www.youtube.com/watch?v={}".format(
+                item["id"])
+
+            # use youtube_dl to collect the song name & artist name
+            video = youtube_dl.YoutubeDL({}).extract_info(
+                youtube_url, download=False)
+            self.liked_videos_lst[0].append(video["artist"])
+            self.liked_videos_lst[1].append(video["track"])
+
+    def print_liked_videos(self):
+        print(self.liked_videos_lst)
