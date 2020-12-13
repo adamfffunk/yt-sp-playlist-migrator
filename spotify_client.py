@@ -11,28 +11,29 @@ class SpotifyClient:
         with open( client_secrets_file ) as f:
             temp_client_data_dict = json.load(f)
 
-        self.client_id = temp_client_data_dict["client_id"]
+        # self.client_id = temp_client_data_dict["client_id"]
         # self.client_secret = temp_client_data_dict['client_secret']
-        self.client_token = temp_client_data_dict["client_token"]
+        self.oauth_token = temp_client_data_dict["oauth_token"]
+        self.user_id = temp_client_data_dict["user_id"]
 
     # Creates a public Spotify playlist called "YouTube Liked Videos" and 
-    # returns the playlist URI 
+    # returns the playlist ID 
     def create_playlist(self):
         """Create A New Playlist"""
         request_body = json.dumps({
             "name": "Youtube Liked Videos",
             "description": "All Liked Youtube Videos",
-            "public": True
+            "public": "True"
         })
 
         query = "https://api.spotify.com/v1/users/{}/playlists".format(
-            self.client_id)
+            self.user_id)
         response = requests.post(
             query,
             data=request_body,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer {}".format(self.client_token)
+                "Authorization": "Bearer {}".format(self.oauth_token)
             }
         )
 
@@ -40,26 +41,25 @@ class SpotifyClient:
         response_json = response.json()        
         return response_json["id"]
 
-    # def get_spotify_uri(self, song_name, artist):
-    #     """Search For the Song"""
-    #     query = "https://api.spotify.com/v1/search?query=track%3A{}+artist%3A{}&type=track&offset=0&limit=20".format(
-    #         song_name,
-    #         artist
-    #     )
-    #     response = requests.get(
-    #         query,
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": "Bearer {}".format(self.client_token)
-    #         }
-    #     )
-    #     response_json = response.json()
-    #     songs = response_json["tracks"]["items"]
+    def get_spotify_uri(self, song_name, artist):
+        """Search For the Song"""
+        query = "https://api.spotify.com/v1/search?query=track%3A{}+artist%3A{}&type=track&offset=0&limit=20".format(
+            song_name,
+            artist
+        )
+        response = requests.get(
+            query,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {}".format(self.oauth_token)
+            }
+        )
+        response_json = response.json()
+        songs = response_json["tracks"]["items"]
 
-    #     # only use the first song
-    #     uri = songs[0]["uri"]
-
-    #     return uri
+        # Only use the first song found in the search
+        uri = songs[0]["uri"]
+        return uri
 
     # def add_song_to_playlist(self):
     #     """Add all liked songs into a new Spotify playlist"""

@@ -10,4 +10,5 @@ if __name__ == '__main__':
     # Create a Spotify account handle to create a new playlist
     # containing the songs in the liked YouTube videos list
     spotify_client = SpotifyClient()
-    spotify_client.create_playlist()
+    playlist_id = spotify_client.create_playlist()
+    song_uri = spotify_client.get_spotify_uri("Jump", "Van Halen")
