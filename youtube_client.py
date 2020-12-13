@@ -49,6 +49,7 @@ class YoutubeClient:
             youtube_url = "https://www.youtube.com/watch?v={}".format(
                 item["id"])
 
+            # TODO Do not add videos that are not songs to liked_video_lst
             # use youtube_dl to collect the song name & artist name
             video = youtube_dl.YoutubeDL({}).extract_info(
                 youtube_url, download=False)
