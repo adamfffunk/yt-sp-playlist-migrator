@@ -11,8 +11,6 @@ class YoutubeClient:
 
     def  __init__(self):
         self.get_client()
-        # self.all_song_info = {}
-        self.liked_videos_lst = [[],[]] # columns: 'artists', 'tracks'
 
     # Log in to YouTube
     def get_client(self):
@@ -37,6 +35,8 @@ class YoutubeClient:
 
     def get_liked_videos(self):
         """Grab Our Liked Videos & Create A Dictionary Of Important Song Information"""
+        liked_videos_lst = [[],[]]
+        
         request = self.api_client.videos().list(
             part="snippet,contentDetails,statistics",
             myRating="like"
@@ -52,8 +52,7 @@ class YoutubeClient:
             # use youtube_dl to collect the song name & artist name
             video = youtube_dl.YoutubeDL({}).extract_info(
                 youtube_url, download=False)
-            self.liked_videos_lst[0].append(video["artist"])
-            self.liked_videos_lst[1].append(video["track"])
+            liked_videos_lst[0].append(video["artist"])
+            liked_videos_lst[1].append(video["track"])
 
-    def print_liked_videos(self):
-        print(self.liked_videos_lst)
+        return liked_videos_lst

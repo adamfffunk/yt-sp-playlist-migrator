@@ -3,12 +3,11 @@ from spotify_client import SpotifyClient
 
 if __name__ == '__main__':
     # # Create a Youtube API client to download list of liked videos
-    # yt_client = YoutubeClient()
-    # yt_client.get_liked_videos()
-    # yt_client.print_liked_videos()
+    yt_client = YoutubeClient()
+    liked_videos_lst = yt_client.get_liked_videos()
 
     # Create a Spotify account handle to create a new playlist
     # containing the songs in the liked YouTube videos list
     spotify_client = SpotifyClient()
-    playlist_id = spotify_client.create_playlist()
-    song_uri = spotify_client.get_spotify_uri("Jump", "Van Halen")
+    spotify_songs_lst = spotify_client.get_spotify_songs(liked_videos_lst)
+    http_reponse = spotify_client.add_song_to_playlist(spotify_songs_lst)

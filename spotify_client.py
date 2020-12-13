@@ -41,7 +41,19 @@ class SpotifyClient:
         response_json = response.json()        
         return response_json["id"]
 
-    def get_spotify_uri(self, song_name, artist):
+    def get_spotify_songs(self, songs_lst):
+        """Convert artist and song list into list of Spotify songs URIs"""
+        uri_lst = []
+
+        for artist_song in songs_lst:
+            artist = artist_song[0]
+            song = artist_song[1]
+            uri = self.find_song_uri(artist, song)
+            uri_lst.append(uri)
+        
+        return uri_lst
+
+    def find_song_uri(self, song_name, artist):
         """Search For the Song"""
         query = "https://api.spotify.com/v1/search?query=track%3A{}+artist%3A{}&type=track&offset=0&limit=20".format(
             song_name,
@@ -61,36 +73,33 @@ class SpotifyClient:
         uri = songs[0]["uri"]
         return uri
 
-    # def add_song_to_playlist(self):
-    #     """Add all liked songs into a new Spotify playlist"""
-    #     # populate dictionary with our liked songs
-    #     self.get_liked_videos()
+    def add_song_to_playlist(self, songs_lst):
+        """Add all liked songs into a new Spotify playlist"""
+        # # collect all of uri
+        # uris = [info["spotify_uri"]
+        #         for song, info in self.all_song_info.items()]
 
-    #     # collect all of uri
-    #     uris = [info["spotify_uri"]
-    #             for song, info in self.all_song_info.items()]
+        # create a new playlist
+        playlist_id = self.create_playlist()
 
-    #     # create a new playlist
-    #     playlist_id = self.create_playlist()
+        # add all songs into new playlist
+        request_data = json.dumps(songs_lst)
 
-    #     # add all songs into new playlist
-    #     request_data = json.dumps(uris)
+        query = "https://api.spotify.com/v1/playlists/{}/tracks".format(
+            playlist_id)
 
-    #     query = "https://api.spotify.com/v1/playlists/{}/tracks".format(
-    #         playlist_id)
+        response = requests.post(
+            query,
+            data=request_data,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {}".format(self.oauth_token)
+            }
+        )
 
-    #     response = requests.post(
-    #         query,
-    #         data=request_data,
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": "Bearer {}".format(self.client_token)
-    #         }
-    #     )
+        # check for valid response status
+        if response.status_code != 200:
+            raise ResponseException(response.status_code)
 
-    #     # check for valid response status
-    #     if response.status_code != 200:
-    #         raise ResponseException(response.status_code)
-
-    #     response_json = response.json()
-    #     return response_json
+        response_json = response.json()
+        return response_json
