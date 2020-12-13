@@ -2,3 +2,4 @@
 /.vscode
 /__pycache__
 /client_secret.json
+/spotify_secret.json
